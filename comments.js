@@ -1,60 +1,28 @@
-// Create a web server with a rest method that can respond to requests for a JSON-encoded array of comments
-// The array of comments should be defined in a separate file, comments.json, and should be loaded by the server
-// The server should respond to requests to read all comments, add a comment, and delete a comment
-// The server should also respond to requests to update a comment (e.g. to mark it as "read")
-// The server should respond to requests to read all comments with the following JSON-encoded array of comments:
-// [
-//   {
-//     "id": 1,
-//     "author": "Pete Hunt",
-//     "text": "This is one comment"
-//   },
-//   {
-//     "id": 2,
-//     "author": "Jordan Walke",
-//     "text": "This is *another* comment"
-//   }
-// ]
-
-// Path: comments.js
-// Create a web server with a rest method that can respond to requests for a JSON-encoded array of comments
-// The array of comments should be defined in a separate file, comments.json, and should be loaded by the server
-// The server should respond to requests to read all comments, add a comment, and delete a comment
-// The server should also respond to requests to update a comment (e.g. to mark it as "read")
-// The server should respond to requests to read all comments with the following JSON-encoded array of comments:
-// [
-//   {
-//     "id": 1,
-//     "author": "Pete Hunt",
-//     "text": "This is one comment"
-//   },
-//   {
-//     "id": 2,
-//     "author": "Jordan Walke",
-//     "text": "This is *another* comment"
-//   }
-// ]
+// Create a web server that can respond to requests for /comments.json with a JSON-encoded array of comments, 
+// much like your server from the previous exercise. However, if a query string is present with a parameter named 
+// "count" that is an integer, then only the first count comments should be included in the response.
 
 var http = require("http");
 var url = require("url");
-var fs = require("fs");
-var comments = require("./comments.json");
-var querystring = require("querystring");
+
+var comments = [
+	{ name: "John", message: "Hello!" },
+	{ name: "Mary", message: "Hi!" },
+	{ name: "Joe", message: "Hey there!" }
+];
 
 var server = http.createServer(function(request, response) {
-  var urlParts = url.parse(request.url);
-  if (urlParts.pathname === "/comments" && request.method === "GET") {
-    response.writeHead(200, {"Content-Type": "application/json"});
-    response.end(JSON.stringify(comments));
-  } else if (urlParts.pathname === "/comments" && request.method === "POST") {
-    var body = "";
-    request.on("data", function(chunk) {
-      body += chunk;
-    });
-    
+	var urlData = url.parse(request.url, true);
+	if (urlData.pathname === "/comments.json") {
+		if (urlData.query.count) {
+			response.end(JSON.stringify(comments.slice(0, urlData.query.count)));
+		} else {
+			response.end(JSON.stringify(comments));
+		}
+	} else {
+		response.statusCode = 404;
+		response.end();
+	}
+});
 
-
-
-
-
-
+server.listen(8080);
